@@ -1,0 +1,37 @@
+import express from 'express';
+import type { Request, Response } from 'express';
+import supabaseClient from './config/supabase';
+import orderRoutes from './routes/orderRoutes';
+import voucherRoutes from './routes/voucherRoutes';
+
+const app = express();
+const port = 5000;
+
+app.use(express.json());
+
+app.get('/api/test-db', async (req: Request, res: Response) => {
+    // Sử dụng tiếng Anh camelCase cho biến nhận về
+    const { data: orderData, error: fetchError } = await supabaseClient
+        .from('orders')
+        .select('*')
+        .limit(1);
+
+    if (fetchError) {
+        return res.status(500).json({
+            message: "Lỗi kết nối Supabase",
+            errorDetails: fetchError
+        });
+    }
+
+    res.status(200).json({
+        message: "Kết nối Database Supabase thành công rực rỡ!",
+        data: orderData
+    });
+});
+// 2. Kích hoạt toàn bộ API Đơn hàng chạy trên đường dẫn /api/admin/orders
+app.use('/api/admin/orders', orderRoutes);
+app.use('/api/admin/vouchers', voucherRoutes);
+
+app.listen(port, () => {
+    console.log(`Server is running at http://localhost:${port}`);
+});
