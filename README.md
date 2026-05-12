@@ -10,21 +10,15 @@ Chỉ với 3 bước, bạn đã có thể khởi chạy toàn bộ hệ thốn
 
 **Bước 1: Clone code về máy**
 
-Bước 2: Cài đặt toàn bộ thư viện (Chỉ cần chạy 1 lệnh ở thư mục gốc)
+**Bước 2: Cài đặt toàn bộ thư viện (Chỉ cần chạy 1 lệnh ở thư mục gốc)**
+```bash
 npm install
+```
 (Lệnh này sẽ tự động cài node_modules cho cả root, frontend và backend nhờ tính năng Workspaces).
 
-**Bước 3: Cấu hình biến môi trường (Database) và Chạy Server**
+**Bước 3: Khởi chạy Server**
 
-Bạn cần thiết lập file `.env` trước khi khởi chạy Backend. Có thể làm theo 1 trong 2 cách sau:
-- **Cách 1:** Vào thư mục `backend/`, copy file `.env.example` và đổi tên thành `.env`. File này đã chứa sẵn key kết nối Database.
-- **Cách 2:** Tạo file `.env` trong thư mục `backend/` và dán thủ công đoạn code sau vào:
-  ```env
-  SUPABASE_URL=https://roijqlkzkwezvkfckunm.supabase.co
-  SUPABASE_KEY=sb_publishable__WsOnwu4Uj9uW1aGIWMaxQ_DCGjvnAL
-  ```
-
-Sau khi có file `.env`, bạn có thể khởi chạy server bằng lệnh:
+Do dự án đã cấu hình sẵn file `.env` kết nối Database, giảng viên không cần thao tác tạo mới hay điền key. Chỉ cần chạy lệnh sau tại thư mục gốc:
 ```bash
 npm run dev
 ```
