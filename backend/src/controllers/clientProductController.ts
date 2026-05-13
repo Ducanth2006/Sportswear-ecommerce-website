@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express';
-import { fetchClientProducts } from '../services/clientProductService';
+import { fetchClientProducts, fetchClientProductById } from '../services/clientProductService';
 
 export const getClientProducts = async (req: Request, res: Response) => {
     try {
@@ -39,6 +39,33 @@ export const getClientProducts = async (req: Request, res: Response) => {
         console.error("Lỗi getClientProducts:", error);
         res.status(500).json({
             message: "Lỗi hệ thống khi tải sản phẩm",
+            errorDetails: error.message || error
+        });
+    }
+};
+
+export const getClientProductById = async (req: Request, res: Response): Promise<any> => {
+    try {
+        const id = req.params.id as string;
+        
+        if (!id) {
+            return res.status(400).json({ message: "Thiếu ID sản phẩm." });
+        }
+
+        const product = await fetchClientProductById(id);
+
+        if (!product) {
+            return res.status(404).json({ message: "Không tìm thấy sản phẩm hoặc sản phẩm đã ngừng bán." });
+        }
+
+        res.status(200).json({
+            message: "Lấy chi tiết sản phẩm thành công",
+            data: product
+        });
+    } catch (error: any) {
+        console.error("Lỗi getClientProductById:", error);
+        res.status(500).json({
+            message: "Lỗi hệ thống khi tải chi tiết sản phẩm",
             errorDetails: error.message || error
         });
     }

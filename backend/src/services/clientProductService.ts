@@ -96,3 +96,48 @@ export const fetchClientProducts = async (filters: GetProductsFilters) => {
         }
     };
 };
+
+export const fetchClientProductById = async (id: string) => {
+    const { data, error } = await supabaseClient
+        .from('products')
+        .select(`
+            id,
+            name,
+            description,
+            base_price,
+            status,
+            brand,
+            created_at,
+            categories (
+                id,
+                name,
+                slug
+            ),
+            product_images (
+                id,
+                image_url,
+                is_main
+            ),
+            product_variants (
+                id,
+                sku,
+                size,
+                color,
+                price,
+                stock_quantity
+            )
+        `)
+        .eq('id', id)
+        .is('deleted_at', null)
+        .eq('status', 'Active')
+        .single();
+
+    if (error) {
+        if (error.code === 'PGRST116') {
+            return null; // Không tìm thấy hoặc không active
+        }
+        throw error;
+    }
+
+    return data;
+};

@@ -5,6 +5,8 @@ import orderRoutes from './routes/orderRoutes';
 import voucherRoutes from './routes/voucherRoutes';
 import customerRoutes from './routes/customerRoutes';
 import dashboardRoutes from './routes/dashboardRoutes';
+import swaggerUi from 'swagger-ui-express';
+import { swaggerSpec } from './config/swagger';
 import productRoutes from './routes/productRoutes';
 import clientProductRoutes from './routes/clientProductRoutes';
 
@@ -12,6 +14,9 @@ const app = express();
 const port = 5000;
 
 app.use(express.json());
+
+// Swagger Docs (Chỉ hiển thị API Client)
+app.use('/api/docs/client', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.get('/api/test-db', async (req: Request, res: Response) => {
     // Sử dụng tiếng Anh camelCase cho biến nhận về
