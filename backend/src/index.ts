@@ -6,6 +6,7 @@ import voucherRoutes from './routes/voucherRoutes';
 import customerRoutes from './routes/customerRoutes';
 import dashboardRoutes from './routes/dashboardRoutes';
 import productRoutes from './routes/productRoutes';
+import clientProductRoutes from './routes/clientProductRoutes';
 
 const app = express();
 const port = 5000;
@@ -37,6 +38,9 @@ app.use('/api/admin/vouchers', voucherRoutes);
 app.use('/api/admin/customers', customerRoutes);
 app.use('/api/admin/dashboard', dashboardRoutes);
 app.use('/api/admin/products', productRoutes);
+
+// Client APIs
+app.use('/api/products', clientProductRoutes);
 
 // Middleware xử lý lỗi 404 (Route không tồn tại)
 app.use((req: Request, res: Response) => {
