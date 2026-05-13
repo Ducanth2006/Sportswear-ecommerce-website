@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Button, Row, Col, Typography } from "antd";
 import ProductList from "./products/ProductList";
 import CategoryBar from "../components/layout/CategoryBar";
@@ -5,6 +6,24 @@ import CategoryBar from "../components/layout/CategoryBar";
 const { Title, Text } = Typography;
 
 const Home = () => {
+  const [genderFilter, setGenderFilter] = useState<string | undefined>(
+    undefined,
+  );
+
+  const handleShopMen = () => {
+    setGenderFilter("men");
+    document
+      .getElementById("trending-now")
+      ?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const handleShopWomen = () => {
+    setGenderFilter("women");
+    document
+      .getElementById("trending-now")
+      ?.scrollIntoView({ behavior: "smooth" });
+  };
+
   return (
     <>
       {/* ==================== HERO BANNER ==================== */}
@@ -37,9 +56,11 @@ const Home = () => {
           <p style={{ fontSize: "24px", marginBottom: "52px", opacity: 0.98 }}>
             New activewear drops to push your limits.
           </p>
+
           <div style={{ display: "flex", gap: "20px" }}>
             <Button
               size="large"
+              onClick={handleShopMen}
               style={{
                 height: 62,
                 padding: "0 56px",
@@ -53,8 +74,10 @@ const Home = () => {
             >
               SHOP MEN
             </Button>
+
             <Button
               size="large"
+              onClick={handleShopWomen}
               style={{
                 height: 62,
                 padding: "0 56px",
@@ -73,16 +96,18 @@ const Home = () => {
       </div>
 
       <CategoryBar />
-      <ProductList />
 
-      {/* ==================== 2 BANNER LỚN ==================== */}
+      <div id="trending-now">
+        <ProductList genderFilter={genderFilter} />
+      </div>
+
       <div style={{ padding: "0 40px 80px" }}>
         <Row gutter={24}>
           <Col xs={24} md={12}>
             <div
               style={{
                 height: "380px",
-                backgroundImage: `url('/body.jpg')`, // thay bằng ảnh của bạn
+                backgroundImage: `url('/gym.png')`,
                 backgroundSize: "cover",
                 backgroundPosition: "center",
                 borderRadius: "12px",
@@ -113,7 +138,7 @@ const Home = () => {
             <div
               style={{
                 height: "380px",
-                backgroundImage: `url('/giày.jpg')`, // thay bằng ảnh của bạn
+                backgroundImage: `url('/chạy1.png')`,
                 backgroundSize: "cover",
                 backgroundPosition: "center",
                 borderRadius: "12px",
@@ -142,13 +167,27 @@ const Home = () => {
         </Row>
       </div>
 
-      {/* ==================== MEMBERSHIP SECTION ==================== */}
-      <div style={{ background: "#000", color: "#fff", padding: "80px 40px" }}>
+      <div
+        style={{
+          background: "#000",
+          color: "#fff",
+          padding: "100px 40px 80px",
+        }}
+      >
         <div style={{ maxWidth: 1200, margin: "0 auto", textAlign: "center" }}>
           <Title level={2} style={{ color: "#fff", marginBottom: 16 }}>
             BECOME AN ELITE MEMBER &amp; GET 15% OFF
           </Title>
-          <Text style={{ fontSize: 18, display: "block", marginBottom: 40 }}>
+          <Text
+            style={{
+              fontSize: 18,
+              display: "block",
+              marginBottom: 40,
+              maxWidth: 600,
+              marginLeft: "auto",
+              marginRight: "auto",
+            }}
+          >
             Join the club for exclusive drops, free shipping, and early access.
           </Text>
           <Button
@@ -168,27 +207,27 @@ const Home = () => {
         </div>
       </div>
 
-      {/* ==================== FOOTER ==================== */}
+      {/* FOOTER */}
       <footer
-        style={{ background: "#111", color: "#ccc", padding: "60px 40px 30px" }}
+        style={{ background: "#111", color: "#ccc", padding: "80px 40px 40px" }}
       >
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <Row gutter={[40, 40]}>
             <Col xs={24} sm={6}>
-              <h4 style={{ color: "#fff", marginBottom: 16 }}>
+              <h4 style={{ color: "#fff", marginBottom: 20, fontSize: 18 }}>
                 ELITE PERFORMANCE
               </h4>
-              <p style={{ fontSize: 14, lineHeight: 1.6 }}>
+              <p style={{ fontSize: 14, lineHeight: 1.7 }}>
                 Engineered for the relentless.
                 <br />
                 Built for the elite.
               </p>
             </Col>
             <Col xs={24} sm={6}>
-              <h4 style={{ color: "#fff", marginBottom: 16 }}>
+              <h4 style={{ color: "#fff", marginBottom: 20 }}>
                 CUSTOMER SERVICE
               </h4>
-              <p style={{ fontSize: 14, lineHeight: 2 }}>
+              <p style={{ fontSize: 14, lineHeight: 2.2 }}>
                 SUPPORT
                 <br />
                 ORDERS
@@ -197,8 +236,8 @@ const Home = () => {
               </p>
             </Col>
             <Col xs={24} sm={6}>
-              <h4 style={{ color: "#fff", marginBottom: 16 }}>COMPANY</h4>
-              <p style={{ fontSize: 14, lineHeight: 2 }}>
+              <h4 style={{ color: "#fff", marginBottom: 20 }}>COMPANY</h4>
+              <p style={{ fontSize: 14, lineHeight: 2.2 }}>
                 PRIVACY
                 <br />
                 TERMS
@@ -207,16 +246,18 @@ const Home = () => {
               </p>
             </Col>
             <Col xs={24} sm={6}>
-              <h4 style={{ color: "#fff", marginBottom: 16 }}>NEWSLETTER</h4>
+              <h4 style={{ color: "#fff", marginBottom: 20 }}>NEWSLETTER</h4>
               <div style={{ display: "flex", gap: 8 }}>
                 <input
                   type="email"
                   placeholder="ENTER EMAIL"
                   style={{
                     flex: 1,
-                    padding: "12px",
+                    padding: "14px 16px",
                     border: "none",
                     borderRadius: "4px 0 0 4px",
+                    background: "#222",
+                    color: "#fff",
                   }}
                 />
                 <Button
@@ -224,6 +265,7 @@ const Home = () => {
                     background: "#fff",
                     color: "#000",
                     borderRadius: "0 4px 4px 0",
+                    fontWeight: 600,
                   }}
                 >
                   SUBSCRIBE
@@ -235,7 +277,9 @@ const Home = () => {
           <div
             style={{
               textAlign: "center",
-              marginTop: 60,
+              marginTop: 80,
+              paddingTop: 30,
+              borderTop: "1px solid #333",
               fontSize: 13,
               opacity: 0.6,
             }}

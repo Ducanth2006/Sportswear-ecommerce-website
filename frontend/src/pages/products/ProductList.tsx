@@ -5,12 +5,24 @@ import { mockProducts } from "../../utils/mockData";
 
 const { Title } = Typography;
 
-const ProductList = () => {
-  const [products, setProducts] = useState(mockProducts);
+interface ProductListProps {
+  genderFilter?: string; 
+}
+
+const ProductList = ({ genderFilter }: ProductListProps) => {
+  const [filteredProducts, setFilteredProducts] = useState(mockProducts);
+
+  useEffect(() => {
+    let result = mockProducts;
+    if (genderFilter) {
+      result = result.filter((product) => product.gender === genderFilter);
+    }
+
+    setFilteredProducts(result);
+  }, [genderFilter]);
 
   return (
-    <div style={{ padding: "40px 40px 60px" }}>
-      {/* Header */}
+    <div style={{ padding: "40px 40px 60px" }} id="trending-now">
       <div
         style={{
           display: "flex",
@@ -27,7 +39,6 @@ const ProductList = () => {
         </Button>
       </div>
 
-      {/* Carousel lướt ngang */}
       <div
         style={{
           display: "flex",
@@ -38,7 +49,7 @@ const ProductList = () => {
         }}
         className="hide-scrollbar"
       >
-        {products.map((product) => (
+        {filteredProducts.map((product) => (
           <div key={product.id} style={{ minWidth: "280px", flexShrink: 0 }}>
             <ProductCard product={product} />
           </div>

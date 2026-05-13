@@ -12,7 +12,6 @@ const { Text } = Typography;
 const Header = () => {
   return (
     <>
-      {/* Top Bar nhỏ - FREE SHIPPING */}
       <div
         style={{
           background: "#000",
@@ -26,7 +25,6 @@ const Header = () => {
         FREE STANDARD SHIPPING &amp; RETURNS | JOIN ELITE CLUB
       </div>
 
-      {/* Header chính - Nền trắng, chữ đen */}
       <AntHeader
         style={{
           background: "#fff",
@@ -41,7 +39,6 @@ const Header = () => {
           boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
         }}
       >
-        {/* Logo */}
         <div
           style={{
             fontSize: 24,
@@ -53,7 +50,6 @@ const Header = () => {
           ELITE PERFORMANCE
         </div>
 
-        {/* Menu chính */}
         <div style={{ display: "flex", gap: 32, fontWeight: 600 }}>
           <Link to="/" style={{ color: "#ff4d4f", fontWeight: 700 }}>
             MEN
@@ -75,7 +71,6 @@ const Header = () => {
           </Link>
         </div>
 
-        {/* Search + Icons */}
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
           <Input
             placeholder="Search"

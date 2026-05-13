@@ -10,6 +10,7 @@ interface Product {
   sold: number;
   isNew?: boolean;
   isBestSeller?: boolean;
+  gender: "men" | "women" | "unisex"; // ← THÊM DÒNG NÀY
 }
 
 export const mockProducts: Product[] = [
@@ -23,6 +24,7 @@ export const mockProducts: Product[] = [
     rating: 4.8,
     sold: 1240,
     isNew: true,
+    gender: "men", // ← THÊM DÒNG NÀY
   },
   {
     id: "2",
@@ -34,6 +36,7 @@ export const mockProducts: Product[] = [
     rating: 4.9,
     sold: 890,
     isBestSeller: true,
+    gender: "women", // ← THÊM DÒNG NÀY
   },
   {
     id: "3",
@@ -45,6 +48,7 @@ export const mockProducts: Product[] = [
     rating: 5,
     sold: 650,
     isBestSeller: true,
+    gender: "men", // ← THÊM DÒNG NÀY
   },
   {
     id: "4",
@@ -55,6 +59,7 @@ export const mockProducts: Product[] = [
     description: "Hoodie công nghệ cao",
     rating: 4.7,
     sold: 420,
+    gender: "women", // ← THÊM DÒNG NÀY
   },
   {
     id: "5",
@@ -65,6 +70,7 @@ export const mockProducts: Product[] = [
     description: "Quần short chạy bộ",
     rating: 4.6,
     sold: 310,
+    gender: "men", // ← THÊM DÒNG NÀY
   },
   {
     id: "6",
@@ -76,5 +82,6 @@ export const mockProducts: Product[] = [
     rating: 4.9,
     sold: 180,
     isNew: true,
+    gender: "men", // ← THÊM DÒNG NÀY
   },
 ];
