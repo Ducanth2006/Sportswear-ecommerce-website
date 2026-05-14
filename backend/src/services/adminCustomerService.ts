@@ -3,7 +3,7 @@ import supabaseClient from '../config/supabase';
 // Lấy danh sách tất cả khách hàng
 export const fetchAllCustomers = async () => {
     const { data: customerList, error: fetchError } = await supabaseClient
-        .from('users') // Sửa thành bảng 'users' chuẩn với DB của bạn
+        .from('users')
         .select('*')
         .order('created_at', { ascending: false });
 
@@ -15,7 +15,7 @@ export const fetchAllCustomers = async () => {
 export const toggleCustomerStatus = async (customerId: string, isActive: boolean) => {
     const { data: updatedCustomer, error: updateError } = await supabaseClient
         .from('users')
-        .update({ status: isActive ? 'active' : 'inactive' }) // DB dùng cột status kiểu text
+        .update({ status: isActive ? 'active' : 'inactive' })
         .eq('id', customerId)
         .select()
         .single();
