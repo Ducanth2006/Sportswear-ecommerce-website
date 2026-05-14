@@ -7,13 +7,13 @@ export const fetchDashboardOverview = async () => {
         supabaseClient
             .from('orders')
             .select('*', { count: 'exact', head: true }),
-        
+
         // 2. Lấy dữ liệu doanh thu (Chỉ lấy các đơn hàng có trạng thái 'Completed')
         supabaseClient
             .from('orders')
             .select('total_amount')
             .eq('status', 'Completed'),
-            
+
         // 3. Đếm tổng số khách hàng
         supabaseClient
             .from('users')
