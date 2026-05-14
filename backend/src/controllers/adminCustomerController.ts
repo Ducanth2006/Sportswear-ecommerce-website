@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express';
-import { fetchAllCustomers, toggleCustomerStatus } from '../services/customerService';
+import { fetchAllCustomers, toggleCustomerStatus } from '../services/adminCustomerService';
 
 // Lấy danh sách khách hàng
 export const getAllCustomers = async (req: Request, res: Response) => {
@@ -21,7 +21,7 @@ export const getAllCustomers = async (req: Request, res: Response) => {
 export const changeCustomerStatus = async (req: Request, res: Response): Promise<any> => {
     try {
         const customerId = req.params.id as string;
-        const { isActive } = req.body; // Expect: true hoặc false
+        const { isActive } = req.body;
 
         if (isActive === undefined) {
             return res.status(400).json({
