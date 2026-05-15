@@ -1,4 +1,6 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 @layer utilities {
   .custom-scrollbar::-webkit-scrollbar {
@@ -36,5 +38,6 @@
 .right-align {
   text-align: right;
 }
+
 
 

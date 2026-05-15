@@ -7,13 +7,15 @@ import Products from './pages/Products';
 import Categories from './pages/Categories';
 import Orders from './pages/Orders';
 import UsersPage from './pages/UsersPage';
-import Support from './pages/Support';
+import ComplaintsPage from './pages/ComplaintsPage';
 import SettingsPage from './pages/SettingsPage';
 import AddProduct from './pages/AddProduct';
 import AccountProfile from './pages/AccountProfile';
 import HelpCenter from './pages/HelpCenter';
 import ReportsPage from './pages/ReportsPage';
 import ForgotPassword from './pages/ForgotPassword';
+import Register from './pages/Register';
+import VouchersPage from './pages/VouchersPage';
 
 export default function App() {
   return (
@@ -21,6 +23,7 @@ export default function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/" element={<AppLayout />}>
             <Route index element={<Navigate to="/dashboard" replace />} />
@@ -30,7 +33,8 @@ export default function App() {
             <Route path="categories" element={<Categories />} />
             <Route path="orders" element={<Orders />} />
             <Route path="users" element={<UsersPage />} />
-            <Route path="support" element={<Support />} />
+            <Route path="vouchers" element={<VouchersPage />} />
+            <Route path="complaints" element={<ComplaintsPage />} />
             <Route path="settings" element={<SettingsPage />} />
             <Route path="account" element={<AccountProfile />} />
             <Route path="help" element={<HelpCenter />} />
