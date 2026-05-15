@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express';
-import { fetchAllVouchers, createVoucher } from '../services/voucherService';
+import { fetchAllVouchers, createVoucher } from '../services/adminVoucherService';
 
 export const getAllVouchers = async (req: Request, res: Response) => {
     try {
@@ -18,26 +18,23 @@ export const getAllVouchers = async (req: Request, res: Response) => {
 
 export const createNewVoucher = async (req: Request, res: Response): Promise<any> => {
     try {
-        // Lấy các thông tin Admin nhập từ Body
         const { code, discountAmount, usageLimit } = req.body;
 
-        // Bắt lỗi: Nếu Admin quên nhập Mã hoặc Số tiền giảm thì chặn lại luôn
         if (!code || !discountAmount) {
             return res.status(400).json({
                 message: "Vui lòng nhập đầy đủ mã Voucher (code) và mức giảm giá (discountAmount)."
             });
         }
 
-        // Đóng gói dữ liệu và ÉP KIỂU THẬT SỰ (Runtime casting)
         const voucherData = {
-            code: String(code), // Ép chắc chắn thành chuỗi
-            discount_value: Number(discountAmount), // Đổi thành discount_value theo đúng DB
-            quantity: usageLimit ? Number(usageLimit) : 100 // Đổi thành quantity theo đúng DB
+            code: String(code),
+            discount_value: Number(discountAmount),
+            quantity: usageLimit ? Number(usageLimit) : 100
         };
 
         const result = await createVoucher(voucherData);
 
-        res.status(201).json({ // Mã 201 nghĩa là Created (Đã tạo thành công)
+        res.status(201).json({
             message: "Tạo Mã giảm giá mới thành công!",
             data: result
         });
