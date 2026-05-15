@@ -10,6 +10,7 @@ import { swaggerSpec } from './config/swagger';
 import productRoutes from './routes/productRoutes';
 import clientProductRoutes from './routes/clientProductRoutes';
 import clientCategoryRoutes from './routes/clientCategoryRoutes';
+import clientCartRoutes from './routes/clientCartRoutes';
 
 const app = express();
 const port = 5000;
@@ -48,6 +49,8 @@ app.use('/api/admin/products', productRoutes);
 // Client APIs
 app.use('/api/products', clientProductRoutes);
 app.use('/api/categories', clientCategoryRoutes);
+app.use('/api/cart', clientCartRoutes);
+
 
 // Middleware xử lý lỗi 404 (Route không tồn tại)
 app.use((req: Request, res: Response) => {

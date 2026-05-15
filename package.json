@@ -14,7 +14,10 @@
     "dev": "concurrently \"npm run dev --workspace=backend\" \"npm run dev --workspace=frontend\""
   },
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "autoprefixer": "^10.5.0",
+    "concurrently": "^8.2.2",
+    "postcss": "^8.5.14",
+    "tailwindcss": "^4.3.0"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.105.4"
