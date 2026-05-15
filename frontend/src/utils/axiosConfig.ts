@@ -1,10 +1,10 @@
 import axios from "axios";
 
-const apiClient = axios.create({
-  baseURL: "http://localhost:8080/api",
-});
+// Tạo instance KHÔNG có baseURL cố định
+const axiosInstance = axios.create();
 
-apiClient.interceptors.request.use((config) => {
+// Giữ lại interceptors để tự động xử lý Token và lỗi 401
+axiosInstance.interceptors.request.use((config) => {
   const token = localStorage.getItem("accessToken");
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
@@ -12,7 +12,7 @@ apiClient.interceptors.request.use((config) => {
   return config;
 });
 
-apiClient.interceptors.response.use(
+axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
@@ -23,4 +23,4 @@ apiClient.interceptors.response.use(
   },
 );
 
-export default apiClient;
+export default axiosInstance;

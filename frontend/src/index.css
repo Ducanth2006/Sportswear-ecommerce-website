@@ -1,4 +1,5 @@
 @import "antd/dist/reset.css";
+@import "tailwindcss";
 
 body {
   margin: 0;
@@ -10,3 +11,43 @@ body {
 #root {
   min-height: 100vh;
 }
+
+@import "tailwindcss";
+
+@layer utilities {
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #d8dadc;
+    border-radius: 4px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #8f6f6c;
+  }
+}
+
+.help-collapse .ant-collapse-item {
+  border-bottom: 1px solid #eceef0 !important;
+}
+.help-collapse .ant-collapse-item:last-child {
+  border-bottom: none !important;
+}
+.help-collapse .ant-collapse-header {
+  padding: 16px 0 !important;
+}
+.help-collapse .ant-collapse-content-box {
+  padding: 0 0 16px 0 !important;
+}
+
+.right-align {
+  text-align: right;
+}
+

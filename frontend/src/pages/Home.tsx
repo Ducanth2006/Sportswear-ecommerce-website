@@ -6,22 +6,16 @@ import CategoryBar from "../components/layout/CategoryBar";
 const { Title, Text } = Typography;
 
 const Home = () => {
-  const [genderFilter, setGenderFilter] = useState<string | undefined>(
-    undefined,
-  );
+  const [genderFilter, setGenderFilter] = useState<string | undefined>(undefined);
 
   const handleShopMen = () => {
     setGenderFilter("men");
-    document
-      .getElementById("trending-now")
-      ?.scrollIntoView({ behavior: "smooth" });
+    document.getElementById("trending-now")?.scrollIntoView({ behavior: "smooth" });
   };
 
   const handleShopWomen = () => {
     setGenderFilter("women");
-    document
-      .getElementById("trending-now")
-      ?.scrollIntoView({ behavior: "smooth" });
+    document.getElementById("trending-now")?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
@@ -208,15 +202,11 @@ const Home = () => {
       </div>
 
       {/* FOOTER */}
-      <footer
-        style={{ background: "#111", color: "#ccc", padding: "80px 40px 40px" }}
-      >
+      <footer style={{ background: "#111", color: "#ccc", padding: "80px 40px 40px" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <Row gutter={[40, 40]}>
             <Col xs={24} sm={6}>
-              <h4 style={{ color: "#fff", marginBottom: 20, fontSize: 18 }}>
-                ELITE PERFORMANCE
-              </h4>
+              <h4 style={{ color: "#fff", marginBottom: 20, fontSize: 18 }}>ELITE PERFORMANCE</h4>
               <p style={{ fontSize: 14, lineHeight: 1.7 }}>
                 Engineered for the relentless.
                 <br />
@@ -224,9 +214,7 @@ const Home = () => {
               </p>
             </Col>
             <Col xs={24} sm={6}>
-              <h4 style={{ color: "#fff", marginBottom: 20 }}>
-                CUSTOMER SERVICE
-              </h4>
+              <h4 style={{ color: "#fff", marginBottom: 20 }}>CUSTOMER SERVICE</h4>
               <p style={{ fontSize: 14, lineHeight: 2.2 }}>
                 SUPPORT
                 <br />
