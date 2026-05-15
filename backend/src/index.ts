@@ -16,6 +16,7 @@ import adminInventoryRoutes from './routes/adminInventoryRoutes';
 // ── Client Routes (Khách mua hàng) ────────────────────────────
 import clientProductRoutes from './routes/clientProductRoutes';
 import clientCategoryRoutes from './routes/clientCategoryRoutes';
+import clientCartRoutes from './routes/clientCartRoutes';
 
 const app = express();
 const port = 5000;
@@ -69,6 +70,8 @@ app.use('/api/admin/inventory', adminInventoryRoutes);
 // =============================================================
 app.use('/api/products', clientProductRoutes);
 app.use('/api/categories', clientCategoryRoutes);
+app.use('/api/cart', clientCartRoutes);
+
 
 // =============================================================
 // ❌ XỬ LÝ LỖI TẬP TRUNG
