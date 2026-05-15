@@ -24,10 +24,10 @@ app.use(express.json());
 // 📚 SWAGGER DOCS - 2 trang tài liệu API riêng biệt
 // =============================================================
 // Trang Swagger dành cho Khách mua hàng: http://localhost:5000/api/docs/client
-app.use('/api/docs/client', swaggerUi.serve, swaggerUi.setup(clientSwaggerSpec));
+app.use('/api/docs/client', swaggerUi.serveFiles(clientSwaggerSpec), swaggerUi.setup(clientSwaggerSpec));
 
 // Trang Swagger dành cho Quản trị viên: http://localhost:5000/api/docs/admin
-app.use('/api/docs/admin', swaggerUi.serve, swaggerUi.setup(adminSwaggerSpec));
+app.use('/api/docs/admin', swaggerUi.serveFiles(adminSwaggerSpec), swaggerUi.setup(adminSwaggerSpec));
 
 // =============================================================
 // 🔍 TEST KẾT NỐI DATABASE
