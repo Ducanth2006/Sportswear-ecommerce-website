@@ -1,43 +1,74 @@
 import supabaseClient from '../config/supabase';
 
-// Lấy danh sách sản phẩm đầy đủ các trường
+// 1. Lấy danh sách sản phẩm (kèm theo Danh mục, Biến thể và Hình ảnh)
 export const fetchAllProducts = async () => {
-    const { data: products, error } = await supabaseClient
+    const { data, error } = await supabaseClient
         .from('products')
-        .select('*')
-        .order('created_at', { ascending: false });
+        .select(`
+            *,
+            categories ( name, slug ),
+            product_variants (*),
+            product_images (*)
+        `)
+        .order('id', { ascending: false });
 
     if (error) throw error;
-    return products;
+    return data;
 };
 
-// Thêm sản phẩm mới với đầy đủ thông tin mô tả và giá giảm
-export const createProduct = async (productData: any) => {
-    const { data, error } = await supabaseClient
+// 2. Thêm mới Sản phẩm tích hợp (Lưu vào 3 bảng) — Có Rollback
+export const createProductWithDetails = async (productData: any, variants: any[], images: any[]) => {
+    // ── Bước 1: Thêm vào bảng products trước để lấy ID ──
+    const { data: product, error: productErr } = await supabaseClient
         .from('products')
         .insert([productData])
         .select()
         .single();
 
-    if (error) throw error;
-    return data;
+    if (productErr) throw productErr;
+
+    // ── Bước 2: Thêm vào bảng product_variants (nếu có) ──
+    if (variants && variants.length > 0) {
+        const variantsToInsert = variants.map(v => ({ ...v, product_id: product.id }));
+        const { error: variantErr } = await supabaseClient
+            .from('product_variants')
+            .insert(variantsToInsert);
+
+        if (variantErr) {
+            // ⚡ ROLLBACK: Xóa sản phẩm đã tạo ở bước 1
+            await supabaseClient.from('products').delete().eq('id', product.id);
+            throw { code: 'VARIANT_FAILED', message: 'Lỗi khi thêm biến thể. Đã rollback sản phẩm.', details: variantErr };
+        }
+    }
+
+    // ── Bước 3: Thêm vào bảng product_images (nếu có) ──
+    if (images && images.length > 0) {
+        const imagesToInsert = images.map(img => ({ ...img, product_id: product.id }));
+        const { error: imageErr } = await supabaseClient
+            .from('product_images')
+            .insert(imagesToInsert);
+
+        if (imageErr) {
+            // ⚡ ROLLBACK: Xóa sản phẩm (CASCADE sẽ tự xóa luôn variants đã thêm ở bước 2)
+            await supabaseClient.from('products').delete().eq('id', product.id);
+            throw { code: 'IMAGE_FAILED', message: 'Lỗi khi thêm hình ảnh. Đã rollback sản phẩm và biến thể.', details: imageErr };
+        }
+    }
+
+    return product;
 };
 
-// Cập nhật thông tin chi tiết sản phẩm
-export const updateProduct = async (id: string, updateData: any) => {
-    const { data, error } = await supabaseClient
+// 3. Xóa sản phẩm (CASCADE sẽ tự động xóa luôn variants và images)
+export const deleteProductById = async (id: number) => {
+    // Kiểm tra tồn tại trước khi xóa
+    const { data: existing } = await supabaseClient
         .from('products')
-        .update(updateData)
+        .select('id')
         .eq('id', id)
-        .select()
         .single();
 
-    if (error) throw error;
-    return data;
-};
+    if (!existing) throw { code: 'NOT_FOUND' };
 
-// Xóa sản phẩm khỏi hệ thống
-export const deleteProductById = async (id: string) => {
     const { error } = await supabaseClient
         .from('products')
         .delete()
@@ -45,16 +76,4 @@ export const deleteProductById = async (id: string) => {
 
     if (error) throw error;
     return { success: true };
-};
-
-// Lấy thông tin 1 sản phẩm theo ID (Dùng cho Validation)
-export const fetchProductById = async (id: string) => {
-    const { data, error } = await supabaseClient
-        .from('products')
-        .select('*')
-        .eq('id', id)
-        .single();
-
-    if (error) throw error;
-    return data;
 };
