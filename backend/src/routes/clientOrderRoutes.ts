@@ -1,11 +1,30 @@
 import { Router } from 'express';
-import { createOrder } from '../controllers/clientOrderController';
+import { createOrder, getOrders } from '../controllers/clientOrderController';
 
 const router = Router();
 
 /**
  * @swagger
  * /orders:
+ *   get:
+ *     summary: Xem lịch sử đơn hàng của cá nhân (Public)
+ *     description: Lấy danh sách các đơn hàng mà user đã đặt, bao gồm chi tiết các sản phẩm bên trong mỗi đơn hàng. Sắp xếp theo thời gian mới nhất.
+ *     tags: [Client Orders]
+ *     parameters:
+ *       - in: query
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID của khách hàng
+ *     responses:
+ *       200:
+ *         description: Thành công
+ *       401:
+ *         description: Thiếu userId
+ *       500:
+ *         description: Lỗi hệ thống
+ * 
  *   post:
  *     summary: Thực hiện đặt hàng (Checkout)
  *     description: Hệ thống sẽ lấy giỏ hàng của user hiện tại, tính toán tổng tiền, áp dụng voucher (nếu có), trừ tồn kho, xóa giỏ hàng và lưu thông tin đơn hàng. Thời gian thực thi kỳ vọng < 3s.
@@ -61,6 +80,8 @@ const router = Router();
  *       500:
  *         description: Lỗi hệ thống
  */
-router.post('/', createOrder);
+router.route('/')
+    .get(getOrders)
+    .post(createOrder);
 
 export default router;
