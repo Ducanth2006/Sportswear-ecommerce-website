@@ -33,7 +33,7 @@ export const checkoutOrder = async (data: CheckoutRequest) => {
     const orderItemsToInsert = [];
     const stockUpdates = [];
 
-    for (const item of cartItems) {
+    for (const item of (cartItems as any[])) {
         const variant = item.product_variants;
         if (!variant) throw new Error(`Lỗi dữ liệu: Không tìm thấy thông tin sản phẩm cho mã ${item.variant_id}`);
 
@@ -182,4 +182,143 @@ export const checkoutOrder = async (data: CheckoutRequest) => {
     await Promise.all(parallelTasks);
 
     return newOrder;
+};
+
+// -------------------------------------------------------------
+// GET ORDER HISTORY
+// -------------------------------------------------------------
+
+export const getUserOrders = async (userId: number) => {
+    const { data: orders, error } = await supabaseClient
+        .from('orders')
+        .select(`
+            *,
+            order_items (
+                id,
+                quantity,
+                unit_price,
+                variant_id,
+                product_variants (
+                    size,
+                    color,
+                    products (
+                        name,
+                        product_images (
+                            image_url,
+                            is_main
+                        )
+                    )
+                )
+            )
+        `)
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+
+    if (error) {
+        throw new Error('Lỗi khi lấy lịch sử đơn hàng: ' + error.message);
+    }
+
+    // Format lại dữ liệu hình ảnh cho dễ nhìn ở FE
+    const formattedOrders = (orders as any[]).map((order) => {
+        const items = order.order_items.map((item: any) => {
+            const variant = item.product_variants;
+            const product = variant?.products;
+            
+            let imageUrl = null;
+            if (product?.product_images && product.product_images.length > 0) {
+                const mainImage = product.product_images.find((img: any) => img.is_main);
+                imageUrl = mainImage ? mainImage.image_url : product.product_images[0].image_url;
+            }
+
+            return {
+                itemId: item.id,
+                quantity: item.quantity,
+                unitPrice: item.unit_price,
+                variantId: item.variant_id,
+                size: variant?.size,
+                color: variant?.color,
+                productName: product?.name,
+                imageUrl: imageUrl
+            };
+        });
+
+        return {
+            ...order,
+            order_items: items
+        };
+    });
+
+    return formattedOrders;
+};
+
+// -------------------------------------------------------------
+// GET ORDER DETAILS
+// -------------------------------------------------------------
+
+export const getOrderDetails = async (orderId: number, userId: number) => {
+    const { data: order, error } = await supabaseClient
+        .from('orders')
+        .select(`
+            *,
+            order_items (
+                id,
+                quantity,
+                unit_price,
+                variant_id,
+                product_variants (
+                    size,
+                    color,
+                    products (
+                        name,
+                        product_images (
+                            image_url,
+                            is_main
+                        )
+                    )
+                )
+            ),
+            payments (
+                id,
+                transaction_id,
+                method,
+                amount,
+                status,
+                created_at
+            )
+        `)
+        .eq('id', orderId)
+        .eq('user_id', userId)
+        .single();
+
+    if (error || !order) {
+        throw new Error('Đơn hàng không tồn tại hoặc bạn không có quyền truy cập.');
+    }
+
+    // Format lại dữ liệu hình ảnh
+    const formattedItems = order.order_items.map((item: any) => {
+        const variant = item.product_variants;
+        const product = variant?.products;
+        
+        let imageUrl = null;
+        if (product?.product_images && product.product_images.length > 0) {
+            const mainImage = product.product_images.find((img: any) => img.is_main);
+            imageUrl = mainImage ? mainImage.image_url : product.product_images[0].image_url;
+        }
+
+        return {
+            itemId: item.id,
+            quantity: item.quantity,
+            unitPrice: item.unit_price,
+            variantId: item.variant_id,
+            size: variant?.size,
+            color: variant?.color,
+            productName: product?.name,
+            imageUrl: imageUrl
+        };
+    });
+
+    return {
+        ...order,
+        order_items: formattedItems
+    };
 };
