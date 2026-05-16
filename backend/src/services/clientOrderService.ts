@@ -390,31 +390,31 @@ export const cancelOrder = async (orderId: number, userId: number, cancelReason?
 
     // 4b. Hoàn lại số lượt voucher (nếu đơn hàng có dùng voucher)
     if (order.voucher_id) {
-        restoreTasks.push(
-            supabaseClient
+        const restoreVoucher = async () => {
+            const { data: voucher } = await supabaseClient
                 .from('vouchers')
                 .select('quantity')
                 .eq('id', order.voucher_id)
-                .single()
-                .then(({ data: voucher }) => {
-                    if (voucher && voucher.quantity !== null) {
-                        return supabaseClient
-                            .from('vouchers')
-                            .update({ quantity: voucher.quantity + 1 })
-                            .eq('id', order.voucher_id);
-                    }
-                })
-        );
+                .single();
+            if (voucher && voucher.quantity !== null) {
+                await supabaseClient
+                    .from('vouchers')
+                    .update({ quantity: voucher.quantity + 1 })
+                    .eq('id', order.voucher_id);
+            }
+        };
+        restoreTasks.push(restoreVoucher());
     }
 
     // 4c. Cập nhật trạng thái thanh toán → Failed (nếu chưa thanh toán)
-    restoreTasks.push(
-        supabaseClient
+    const markPaymentFailed = async () => {
+        await supabaseClient
             .from('payments')
             .update({ status: 'Failed' })
             .eq('order_id', orderId)
-            .eq('status', 'Pending')
-    );
+            .eq('status', 'Pending');
+    };
+    restoreTasks.push(markPaymentFailed());
 
     await Promise.all(restoreTasks);
 
