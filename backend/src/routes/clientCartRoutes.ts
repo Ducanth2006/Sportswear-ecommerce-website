@@ -31,10 +31,48 @@ const router = Router();
  *     responses:
  *       200:
  *         description: Áp dụng voucher thành công
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Áp dụng voucher thành công."
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     voucherInfo:
+ *                       type: object
+ *                       description: Dữ liệu chi tiết của voucher từ database
+ *                     discountAmount:
+ *                       type: number
+ *                       description: Số tiền được giảm
+ *                       example: 50000
+ *                     finalAmount:
+ *                       type: number
+ *                       description: Tổng tiền sau khi đã trừ đi số tiền giảm
+ *                       example: 450000
  *       400:
  *         description: Voucher không hợp lệ hoặc lỗi dữ liệu đầu vào
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Voucher không còn hoạt động."
  *       500:
  *         description: Lỗi hệ thống
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Lỗi hệ thống (Internal Server Error)"
  *     security: []
  */
 router.post('/apply-voucher', applyVoucher);
