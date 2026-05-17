@@ -1,11 +1,12 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import axios from 'axios';
 import { 
   Button, Input, Table, Tag, Space, 
   Modal, Form, Select, Upload, Switch, message, Popconfirm 
 } from 'antd';
 import { 
   Plus, Search, Edit2, Trash2, 
-  Upload as UploadIcon, Filter 
+  Upload as UploadIcon, Filter, FolderTree, Activity, AlertCircle 
 } from 'lucide-react';
 import type { ColumnsType } from 'antd/es/table';
 import type { UploadFile } from 'antd/es/upload/interface';
@@ -33,62 +34,10 @@ const generateSlug = (text: string) => {
     .replace(/^-+|-+$/g, '');
 };
 
-const initialData: Category[] = [
-  {
-    key: '1',
-    name: 'Football Shoes',
-    description: 'All kinds of football shoes',
-    productCount: 150,
-    displayOrder: 1,
-    status: 'active',
-    slug: 'football-shoes',
-    metaTitle: 'Authentic Football Shoes',
-    metaDescription: 'Buy high quality football shoes',
-    children: [
-      {
-        key: '1-1',
-        parentId: '1',
-        name: 'Artificial Turf Shoes',
-        description: 'TF Turf Shoes',
-        productCount: 80,
-        displayOrder: 1,
-        status: 'active',
-        slug: 'artificial-turf-shoes',
-      },
-      {
-        key: '1-2',
-        parentId: '1',
-        name: 'Natural Grass Shoes',
-        description: 'FG/SG Cleats',
-        productCount: 70,
-        displayOrder: 2,
-        status: 'active',
-        slug: 'natural-grass-shoes',
-      }
-    ]
-  },
-  {
-    key: '2',
-    name: 'Sports Apparel',
-    description: 'Training and competition apparel',
-    productCount: 320,
-    displayOrder: 2,
-    status: 'active',
-    slug: 'sports-apparel',
-  },
-  {
-    key: '3',
-    name: 'Accessories',
-    description: 'Socks, bands, shin guards',
-    productCount: 0,
-    displayOrder: 3,
-    status: 'inactive',
-    slug: 'accessories',
-  }
-];
-
 export default function Categories() {
-  const [categories, setCategories] = useState<Category[]>(initialData);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [stats, setStats] = useState({ totalCategories: 0, activeCategories: 0, emptyCategories: 0 });
+  const [loading, setLoading] = useState(true);
   const [searchText, setSearchText] = useState('');
   const [levelFilter, setLevelFilter] = useState<string>('all');
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
@@ -97,6 +46,56 @@ export default function Categories() {
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [form] = Form.useForm();
   const [fileList, setFileList] = useState<UploadFile[]>([]);
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const buildTree = (flatList: Category[]) => {
+    const listMap: Record<string, Category> = {};
+    const rootNodes: Category[] = [];
+
+    flatList.forEach(item => {
+      listMap[item.key] = { ...item, children: undefined };
+    });
+
+    flatList.forEach(item => {
+      const node = listMap[item.key];
+      if (node.parentId) {
+        const parent = listMap[node.parentId];
+        if (parent) {
+          if (!parent.children) parent.children = [];
+          parent.children.push(node);
+        } else {
+          rootNodes.push(node);
+        }
+      } else {
+        rootNodes.push(node);
+      }
+    });
+
+    return rootNodes;
+  };
+
+  const fetchCategories = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get('/api/admin/categories');
+      if (response.status === 200) {
+        setCategories(buildTree(response.data));
+      }
+      
+      const statsRes = await axios.get('/api/admin/categories/stats');
+      if (statsRes.status === 200) {
+        setStats(statsRes.data);
+      }
+    } catch (error) {
+      console.error(error);
+      message.error('Failed to load categories');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Computed flat list for dropdown parent selection
   const flatCategories = useMemo(() => {
@@ -147,46 +146,39 @@ export default function Categories() {
   }, [categories, searchText, levelFilter]);
 
 
-  const handleDelete = (category: Category) => {
+  const handleDelete = async (category: Category) => {
     if (category.productCount > 0) {
       message.error(`Cannot delete "${category.name}" because it contains ${category.productCount} products. Please move them to a different category first.`);
       return;
     }
     
-    // Recursive delete
-    const deleteFromList = (list: Category[]): Category[] => {
-      return list.filter(item => {
-        if (item.key === category.key) return false;
-        if (item.children) {
-          item.children = deleteFromList(item.children);
-        }
-        return true;
-      });
-    };
-    
-    setCategories(deleteFromList(categories));
-    message.success('Category deleted.');
+    try {
+      const res = await axios.delete(`/api/admin/categories/${category.key}`);
+      if (res.status === 200) {
+        message.success('Category deleted.');
+        fetchCategories();
+      }
+    } catch (error) {
+      message.error('Failed to delete category');
+    }
   };
 
-  const handleBulkStatusChange = (status: 'active' | 'inactive') => {
+  const handleBulkStatusChange = async (status: 'active' | 'inactive') => {
     if (selectedRowKeys.length === 0) return;
     
-    const updateStatus = (list: Category[]): Category[] => {
-      return list.map(item => {
-        let newItem = { ...item };
-        if (selectedRowKeys.includes(item.key)) {
-          newItem.status = status;
-        }
-        if (newItem.children) {
-          newItem.children = updateStatus(newItem.children);
-        }
-        return newItem;
-      });
-    };
-
-    setCategories(updateStatus(categories));
-    message.success(`Updated status for ${selectedRowKeys.length} categories.`);
-    setSelectedRowKeys([]);
+    try {
+      // Create a function mapped to an array of async patches or use a bulk endpoint.
+      // Since no bulk endpoint exists for categories, patch them sequentially.
+      await Promise.all(selectedRowKeys.map(key => 
+        axios.patch(`/api/admin/categories/${key}`, { status })
+      ));
+      
+      message.success(`Updated status for ${selectedRowKeys.length} categories.`);
+      setSelectedRowKeys([]);
+      fetchCategories();
+    } catch (error) {
+      message.error('Failed to update status');
+    }
   };
 
   const openModal = (category?: Category) => {
@@ -194,6 +186,7 @@ export default function Categories() {
       setEditingCategory(category);
       form.setFieldsValue({
         ...category,
+        status: category.status === 'active'
       });
     } else {
       setEditingCategory(null);
@@ -203,56 +196,36 @@ export default function Categories() {
   };
 
   const onModalOk = () => {
-    form.validateFields().then(values => {
-      const newNode: Category = {
-        key: editingCategory ? editingCategory.key : Date.now().toString(),
+    form.validateFields().then(async values => {
+      message.loading({ content: 'Saving...', key: 'saveCat' });
+      const payload: any = {
         name: values.name,
         description: values.description || '',
         slug: values.slug || generateSlug(values.name),
-        parentId: values.parentId,
+        parentId: values.parentId || null,
         status: values.status ? 'active' : 'inactive',
         displayOrder: values.displayOrder || 1,
-        productCount: editingCategory ? editingCategory.productCount : 0,
-        metaTitle: values.metaTitle,
-        metaDescription: values.metaDescription,
+        metaTitle: values.metaTitle || null,
+        metaDescription: values.metaDescription || null,
       };
 
-      if (editingCategory) {
-        // Update
-        const updateInList = (list: Category[]): Category[] => {
-          return list.map(item => {
-            if (item.key === editingCategory.key) {
-              return { ...item, ...newNode };
-            }
-            if (item.children) {
-              return { ...item, children: updateInList(item.children) };
-            }
-            return item;
-          });
-        };
-        setCategories(updateInList(categories));
-        message.success('Category updated successfully.');
-      } else {
-        // Create
-        if (newNode.parentId) {
-          const insertToParent = (list: Category[]): Category[] => {
-            return list.map(item => {
-              if (item.key === newNode.parentId) {
-                return { ...item, children: [...(item.children || []), newNode] };
-              }
-              if (item.children) {
-                return { ...item, children: insertToParent(item.children) };
-              }
-              return item;
-            });
-          };
-          setCategories(insertToParent(categories));
+      try {
+        if (editingCategory) {
+          // Update
+          await axios.patch(`/api/admin/categories/${editingCategory.key}`, payload);
+          message.success({ content: 'Category updated successfully.', key: 'saveCat' });
         } else {
-          setCategories([...categories, newNode]);
+          // Create
+          payload.id = Date.now().toString();
+          payload.productCount = 0;
+          await axios.post('/api/admin/categories', payload);
+          message.success({ content: 'New category added successfully.', key: 'saveCat' });
         }
-        message.success('New category added successfully.');
+        setIsModalVisible(false);
+        fetchCategories();
+      } catch (error) {
+        message.error({ content: 'Failed to save category', key: 'saveCat' });
       }
-      setIsModalVisible(false);
     });
   };
 
@@ -328,7 +301,7 @@ export default function Categories() {
 
   return (
     <div className="p-4 md:p-6 max-w-[1440px] mx-auto space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-2">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-[#191c1e]">Product Categories</h1>
           <p className="text-sm text-[#5b403d] mt-1">Manage product groups and taxonomies.</p>
@@ -341,6 +314,24 @@ export default function Categories() {
         >
           Add Category
         </Button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        {[
+          { label: 'Total Categories', value: stats.totalCategories.toString(), icon: FolderTree, color: 'text-blue-600', bg: 'bg-blue-50' },
+          { label: 'Active Categories', value: stats.activeCategories.toString(), icon: Activity, color: 'text-green-600', bg: 'bg-green-50' },
+          { label: 'Empty Categories', value: stats.emptyCategories.toString(), icon: AlertCircle, color: 'text-amber-600', bg: 'bg-amber-50' },
+        ].map((stat, i) => (
+          <div key={i} className="bg-white p-4 rounded-xl border border-[#d8dadc] shadow-sm flex items-center gap-4">
+            <div className={`w-12 h-12 flex items-center justify-center rounded-lg ${stat.bg}`}>
+              <stat.icon className={stat.color} size={24} />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-[#191c1e]">{stat.value}</p>
+              <p className="text-sm text-[#5b403d] font-medium">{stat.label}</p>
+            </div>
+          </div>
+        ))}
       </div>
 
       <div className="bg-white border border-[#d8dadc] rounded-xl shadow-sm">
@@ -382,6 +373,7 @@ export default function Categories() {
             onChange: setSelectedRowKeys,
           }}
           pagination={false}
+          loading={loading}
           className="overflow-x-auto custom-table"
         />
       </div>
