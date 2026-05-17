@@ -59,6 +59,10 @@ const router = Router();
  *                 type: number
  *                 description: Giá biến thể (mặc định lấy base_price nếu để trống)
  *                 example: 2500000
+ *               cost_price:
+ *                 type: number
+ *                 description: Giá vốn/nhập của biến thể (dùng để tính lợi nhuận)
+ *                 example: 1500000
  *               stock_quantity:
  *                 type: integer
  *                 example: 50
