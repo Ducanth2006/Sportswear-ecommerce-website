@@ -4,11 +4,17 @@ import supabaseClient from '../config/supabase';
 export const fetchAllCategories = async () => {
     const { data: categories, error } = await supabaseClient
         .from('categories')
-        .select('*')
+        .select('*, products(count)')
         .order('id', { ascending: true }); // Sắp xếp theo ID
 
     if (error) throw error;
-    return categories;
+    
+    // Format lại kết quả: Gắn thêm trường `items` (số lượng sản phẩm) và dọn dẹp data thừa
+    return categories.map((cat: any) => {
+        const itemCount = cat.products && cat.products.length > 0 ? cat.products[0].count : 0;
+        const { products, ...cleanCategory } = cat; // Xóa mảng products gốc đi cho nhẹ
+        return { ...cleanCategory, items: itemCount };
+    });
 };
 
 // 2. Thêm danh mục mới
