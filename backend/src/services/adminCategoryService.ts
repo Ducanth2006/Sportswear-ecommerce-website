@@ -31,7 +31,8 @@ export const createCategory = async (categoryData: any) => {
 
 // 3. Cập nhật danh mục (Dùng ID kiểu number)
 export const updateCategory = async (id: number, updateData: any) => {
-    const { data, error } = await supabaseClient
+    // ── Bước 1: Cập nhật danh mục hiện tại ──
+    const { data: updatedCat, error } = await supabaseClient
         .from('categories')
         .update(updateData)
         .eq('id', id)
@@ -39,7 +40,81 @@ export const updateCategory = async (id: number, updateData: any) => {
         .single();
 
     if (error) throw error;
-    return data;
+
+    // ── Bước 2: Đồng bộ trạng thái Draft (Ẩn active) xuống sản phẩm & danh mục con ──
+    if (updateData.status === 'Draft') {
+        let childIds: number[] = [];
+        
+        // Nếu ẩn danh mục Cha
+        if (updatedCat.parent_id === null) {
+            // Lấy tất cả danh mục con thuộc danh mục cha này
+            const { data: children } = await supabaseClient
+                .from('categories')
+                .select('id')
+                .eq('parent_id', id);
+
+            childIds = children ? children.map(c => c.id) : [];
+
+            if (childIds.length > 0) {
+                // 1. Ẩn tất cả danh mục con thành Draft
+                await supabaseClient
+                    .from('categories')
+                    .update({ status: 'Draft' })
+                    .in('id', childIds);
+            }
+        }
+
+        // 2. Ẩn toàn bộ sản phẩm trực thuộc danh mục cha và các danh mục con tương ứng
+        const allTargetCategoryIds = [...childIds, id];
+        await supabaseClient
+            .from('products')
+            .update({ status: 'Draft' })
+            .in('category_id', allTargetCategoryIds);
+    } 
+    // ── Bước 3: Đồng bộ trạng thái Active (Kích hoạt) hai chiều ──
+    else if (updateData.status === 'Active') {
+        // Nếu kích hoạt danh mục Cha
+        if (updatedCat.parent_id === null) {
+            // Lấy tất cả danh mục con thuộc danh mục cha này
+            const { data: children } = await supabaseClient
+                .from('categories')
+                .select('id')
+                .eq('parent_id', id);
+
+            const childIds = children ? children.map(c => c.id) : [];
+
+            if (childIds.length > 0) {
+                // 1. Kích hoạt tất cả danh mục con của nó thành Active
+                await supabaseClient
+                    .from('categories')
+                    .update({ status: 'Active' })
+                    .in('id', childIds);
+            }
+
+            // 2. Kích hoạt toàn bộ sản phẩm trực thuộc danh mục cha và các danh mục con
+            const allTargetCategoryIds = [...childIds, id];
+            await supabaseClient
+                .from('products')
+                .update({ status: 'Active' })
+                .in('category_id', allTargetCategoryIds);
+        } 
+        // Nếu kích hoạt danh mục Con
+        else {
+            // 1. Tự động kích hoạt danh mục Cha của nó thành Active (nếu cha đang ẩn)
+            await supabaseClient
+                .from('categories')
+                .update({ status: 'Active' })
+                .eq('id', updatedCat.parent_id);
+
+            // 2. Tự động kích hoạt toàn bộ sản phẩm trực thuộc danh mục con này thành Active
+            await supabaseClient
+                .from('products')
+                .update({ status: 'Active' })
+                .eq('category_id', id);
+        }
+    }
+
+    return updatedCat;
 };
 
 // SỬA HÀM SỐ 4: Kiểm tra khóa ngoại trước khi xóa
